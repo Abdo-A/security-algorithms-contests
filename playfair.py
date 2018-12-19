@@ -71,7 +71,7 @@ while(len(plainText) > 0):
     coupleTempArray = []
 
 
-# Converying the couples array to a string
+# Converting the couples array to a string
 plainTextCouples = ""
 
 for plainTextCouple in plainTextCouplesArray:
