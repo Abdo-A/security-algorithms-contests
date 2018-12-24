@@ -9,10 +9,10 @@ from helpers import IP_1
 
 initialKey = input()
 initialInput = input()
-numberOfEncryptions = int(input())
+numberOfDecryptions = int(input())
 
 
-for i in range(numberOfEncryptions):
+for i in range(numberOfDecryptions):
     input = permutationBox(64, IP, 64, initialInput)
 
     keys = keyGeneration(initialKey)
@@ -21,7 +21,7 @@ for i in range(numberOfEncryptions):
         inputLeft = input[0:8]
         inputRight = input[8:16]
 
-        fFunctionOutput = fFunction(inputRight, keys[i])
+        fFunctionOutput = fFunction(inputRight, keys[15-i])
 
         XORoutputDecimal = int(HexToBinary(fFunctionOutput), 2) ^ int(
             HexToBinary(inputLeft), 2)
@@ -46,7 +46,7 @@ for i in range(numberOfEncryptions):
     initialInput = finalOutput
 
 
-if(numberOfEncryptions == 0):
+if(numberOfDecryptions == 0):
     print(initialInput)
 else:
     print(finalOutput)
