@@ -76,7 +76,8 @@ inputToXOR = permutationBox(48, EPTable, 32, inputHex)
 XORoutputDecimal = int(HexToBinary(keyHex), 2) ^ int(
     HexToBinary(inputToXOR), 2)
 
-XORoutputHex = DecimalToHex(XORoutputDecimal)
+XORoutputHex = DecimalToHex(XORoutputDecimal, 12)
+
 
 sBoxOutput = sBox(XORoutputHex)
 

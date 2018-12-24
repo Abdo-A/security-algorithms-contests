@@ -4,8 +4,10 @@ def HexToBinary(hex):
 
 def BinaryToHex(binary):
     numberOfLeadingZeros = 0
+    thereIsRest = False
     for item in list(binary):
         if item != '0':
+            thereIsRest = True
             break
         numberOfLeadingZeros += 0.25
     numberOfLeadingZeros = int(numberOfLeadingZeros)
@@ -14,42 +16,31 @@ def BinaryToHex(binary):
     for i in range(numberOfLeadingZeros):
         leadingZeros += '0'
 
-    return leadingZeros+hex(int(binary, 2)).split('x')[-1].upper()
+    rest = ''
+    if thereIsRest:
+        rest = hex(int(binary, 2)).split('x')[-1].upper()
+
+    return leadingZeros+rest
 
 
 def BinaryToDecimal(decimal):
     return int(decimal, 2)
 
 
-def DecimalToHex(decimal):
-    return hex(decimal).split('x')[-1].upper()
+def DecimalToHex(decimal, expectedOutputSize=0):
+    result = hex(decimal).split('x')[-1].upper()
+    if len(result) == 11 or len(result) == 7:
+        result = '0'+result
+
+    if expectedOutputSize > 0:
+        while(len(result) < expectedOutputSize):
+            result = '0'+result
+
+    return result
 
 
 def HexToDecimal(hex):
     return int(hex, 16)
-
-
-def permutationBox(outputSize, permutationBox, inputSize, inputHex):
-
-    inputBinaryArray = list(HexToBinary(inputHex))
-
-    outputBinaryArray = [None] * outputSize
-
-    # converting items in both tables to be numbers
-    for i, item in enumerate(permutationBox):
-        permutationBox[i] = int(permutationBox[i])
-
-    for i, item in enumerate(inputBinaryArray):
-        inputBinaryArray[i] = int(inputBinaryArray[i])
-
-    for i, number in enumerate(permutationBox):
-        outputBinaryArray[i] = inputBinaryArray[number-1]
-
-    outputBinary = ''.join(str(n) for n in outputBinaryArray)
-
-    outputHex = BinaryToHex(outputBinary)
-
-    return outputHex
 
 
 sBoxes = [
@@ -151,3 +142,130 @@ sBoxes = [
     ]
 
 ]
+
+IP = [58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28, 20, 12, 4, 62, 54, 46, 38, 30, 22, 14, 6, 64, 56, 48, 40, 32, 24, 16,
+      8, 57, 49, 41, 33, 25, 17, 9, 1, 59, 51, 43, 35, 27, 19, 11, 3, 61, 53, 45, 37, 29, 21, 13, 5, 63, 55, 47, 39, 31, 23, 15, 7]
+
+IP_1 = [40, 8, 48, 16, 56, 24, 64, 32, 39, 7, 47, 15, 55, 23, 63, 31, 38, 6, 46, 14, 54, 22, 62, 30, 37, 5, 45, 13, 53, 21, 61,
+        29, 36, 4, 44, 12, 52, 20, 60, 28, 35, 3, 43, 11, 51, 19, 59, 27, 34, 2, 42, 10, 50, 18, 58, 26, 33, 1, 41, 9, 49, 17, 57, 25]
+
+PC1 = [57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18, 10, 2, 59, 51, 43, 35, 27, 19, 11, 3, 60, 52, 44,
+       36, 63, 55, 47, 39, 31, 23, 15, 7, 62, 54, 46, 38, 30, 22, 14, 6, 61, 53, 45, 37, 29, 21, 13, 5, 28, 20, 12, 4]
+
+PC2 = [14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26, 8, 16, 7, 27, 20, 13, 2,
+       41, 52, 31, 37, 47, 55, 30, 40, 51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32]
+
+keyRotations = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
+
+
+def permutationBox(outputSize, permutationBox, inputSize, inputHex):
+
+    inputBinaryArray = list(HexToBinary(inputHex))
+
+    outputBinaryArray = [None] * outputSize
+
+    # converting items in both tables to be numbers
+    for i, item in enumerate(permutationBox):
+        permutationBox[i] = int(permutationBox[i])
+
+    for i, item in enumerate(inputBinaryArray):
+        inputBinaryArray[i] = int(inputBinaryArray[i])
+
+    for i, number in enumerate(permutationBox):
+        outputBinaryArray[i] = inputBinaryArray[number-1]
+
+    outputBinary = ''.join(str(n) for n in outputBinaryArray)
+
+    outputHex = BinaryToHex(outputBinary)
+
+    return outputHex
+
+
+def sBox(inputHex):
+    inputBinary = HexToBinary(inputHex)
+
+    counter = 0
+
+    output = []
+
+    for i, bit in enumerate(inputBinary):
+        if i % 6:
+            continue
+
+        row = BinaryToDecimal(inputBinary[i]+inputBinary[i+5])
+        column = BinaryToDecimal(
+            inputBinary[i+1]+inputBinary[i+2]+inputBinary[i+3]+inputBinary[i+4])
+
+        singleOutputDecimal = sBoxes[counter][row][column]
+        singleOutputHex = DecimalToHex(singleOutputDecimal)
+
+        output.append(singleOutputHex)
+
+        counter = counter+1
+
+    output = ''.join(output)
+
+    return output
+
+
+def keyGeneration(keyInitialInputHex):
+
+    keyInputHex = permutationBox(56, PC1, 64, keyInitialInputHex)
+
+    key = keyInputHex
+
+    usedKeys = []
+
+    for i in range(16):
+
+        keyLeft = key[0:7]
+        keyRight = key[7:14]
+
+        keyLeftBinary = HexToBinary(keyLeft)
+        keyRightBinary = HexToBinary(keyRight)
+
+        # print("before")
+        # print(keyLeftBinary)
+
+        # shift
+        for i in range(keyRotations[i]):
+            keyLeftBinary = keyLeftBinary[1:28]+keyLeftBinary[0]
+            keyRightBinary = keyRightBinary[1:28]+keyRightBinary[0]
+
+        # print("after")
+        # print(keyLeftBinary)
+
+        key = BinaryToHex(keyLeftBinary) + BinaryToHex(keyRightBinary)
+
+        # print("BinaryToHex(keyLeftBinary) ")
+        # print(BinaryToHex(keyLeftBinary))
+
+        # print("key")
+        # print(key)
+
+        usedKey = permutationBox(48, PC2, 56, key)
+        usedKeys.append(usedKey)
+
+    return usedKeys
+
+
+def fFunction(inputHex, keyHex):
+
+    EPTable = [32, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 12, 13, 14, 15, 16, 17,
+               16, 17, 18, 19, 20, 21, 20, 21, 22, 23, 24, 25, 24, 25, 26, 27, 28, 29, 28, 29, 30, 31, 32, 1]
+
+    straightBoxTable = [16, 7, 20, 21, 29, 12, 28, 17, 1, 15, 23, 26, 5,
+                        18, 31, 10, 2, 8, 24, 14, 32, 27, 3, 9, 19, 13, 30, 6, 22, 11, 4, 25]
+
+    inputToXOR = permutationBox(48, EPTable, 32, inputHex)
+
+    XORoutputDecimal = int(HexToBinary(keyHex), 2) ^ int(
+        HexToBinary(inputToXOR), 2)
+
+    XORoutputHex = DecimalToHex(XORoutputDecimal, 12)
+
+    sBoxOutput = sBox(XORoutputHex)
+
+    finalOutput = permutationBox(32, straightBoxTable, 32, sBoxOutput)
+
+    return finalOutput
