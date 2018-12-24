@@ -3,7 +3,18 @@ def HexToBinary(hex):
 
 
 def BinaryToHex(binary):
-    return hex(int(binary, 2)).split('x')[-1].upper()
+    numberOfLeadingZeros = 0
+    for item in list(binary):
+        if item != '0':
+            break
+        numberOfLeadingZeros += 0.25
+    numberOfLeadingZeros = int(numberOfLeadingZeros)
+
+    leadingZeros = ''
+    for i in range(numberOfLeadingZeros):
+        leadingZeros += '0'
+
+    return leadingZeros+hex(int(binary, 2)).split('x')[-1].upper()
 
 
 def BinaryToDecimal(decimal):
@@ -12,6 +23,33 @@ def BinaryToDecimal(decimal):
 
 def DecimalToHex(decimal):
     return hex(decimal).split('x')[-1].upper()
+
+
+def HexToDecimal(hex):
+    return int(hex, 16)
+
+
+def permutationBox(outputSize, permutationBox, inputSize, inputHex):
+
+    inputBinaryArray = list(HexToBinary(inputHex))
+
+    outputBinaryArray = [None] * outputSize
+
+    # converting items in both tables to be numbers
+    for i, item in enumerate(permutationBox):
+        permutationBox[i] = int(permutationBox[i])
+
+    for i, item in enumerate(inputBinaryArray):
+        inputBinaryArray[i] = int(inputBinaryArray[i])
+
+    for i, number in enumerate(permutationBox):
+        outputBinaryArray[i] = inputBinaryArray[number-1]
+
+    outputBinary = ''.join(str(n) for n in outputBinaryArray)
+
+    outputHex = BinaryToHex(outputBinary)
+
+    return outputHex
 
 
 sBoxes = [
