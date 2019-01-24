@@ -41,3 +41,41 @@ def DecimalToHex(decimal, expectedOutputSize=0):
 
 def HexToDecimal(hex):
     return int(hex, 16)
+
+
+def GetNumberInDomain(domain, number):
+    if(number < domain and number >= 0):
+        return number
+    elif(number >= domain):
+        while(not(number < domain and number >= 0)):
+            number = number-domain
+        return number
+    elif(number < 0):
+        while(not(number < domain and number >= 0)):
+            number = number+domain
+        return number
+
+
+def ExtendedEuclidean(domain, number):
+    A1, A2, A3, B1, B2, B3 = 1, 0, domain, 0, 1, number
+    MI = False
+    # print(A1, A2, A3, B1, B2, B3)
+    while(1):
+        A1Last = A1
+        A2Last = A2
+        A3Last = A3
+        B1Last = B1
+        B2Last = B2
+        B3Last = B3
+        A1, A2, A3 = B1Last, B2Last, B3Last
+        B3 = A3Last % B3Last
+        remainder = A3Last//B3Last
+        B1 = A1Last-(remainder*A1)
+        B2 = A2Last-(remainder*A2)
+        # print(remainder, A1, A2, A3, B1, B2, B3)
+        if(B3 == 1):
+            MI = B2
+            break
+        elif(B3 == 0):
+            break
+    return MI
