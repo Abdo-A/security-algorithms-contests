@@ -43,6 +43,29 @@ def HexToDecimal(hex):
     return int(hex, 16)
 
 
+def XORbinary(n1, n2, expectedOutputSize=0):
+    result = ''
+    for i in range(len(n1)):
+        if((n1[i] == '0' and n2[i] == '0') or (n1[i] == '1' and n2[i] == '1')):
+            result = result+'0'
+        else:
+            result = result+'1'
+    if expectedOutputSize > 0:
+        while(len(result) < expectedOutputSize):
+            result = '0'+result
+    return result
+
+
+def ShiftLeftString(s):
+    s = list(s)
+    newS = ''
+    for i in range(len(s)):
+        if(i > 0):
+            newS = newS+s[i]
+    newS = newS+'0'
+    return newS
+
+
 def GetNumberInDomain(domain, number):
     if(number < domain and number >= 0):
         return number
