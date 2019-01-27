@@ -70,11 +70,15 @@ def GetNumberInDomain(domain, number):
     if(number < domain and number >= 0):
         return number
     elif(number >= domain):
-        while(not(number < domain and number >= 0)):
-            number = number-domain
+        # while(not(number < domain and number >= 0)):
+            # print('stuck in condition 2')
+            # number = number-domain
+            # print("number", number)
+        number = number % domain
         return number
     elif(number < 0):
         while(not(number < domain and number >= 0)):
+            print('stuck in condition 3')
             number = number+domain
         return number
 
